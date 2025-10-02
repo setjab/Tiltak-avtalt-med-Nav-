@@ -161,7 +161,7 @@ function updateCharts(){
   document.getElementById("dateU30").innerText = "Oppdatert: " + now;
   document.getElementById("dateO30").innerText = "Oppdatert: " + now;
 
-  // Grafer uten "ikke på tiltak"
+  // Grafer (kun tiltak)
   if(window.chartU) window.chartU.destroy();
   if(window.chartO) window.chartO.destroy();
 
@@ -188,13 +188,56 @@ function updateCharts(){
 
 async function exportPDF(){
   const {jsPDF}=window.jspdf;
-  const element=document.body;
-  const canvas=await html2canvas(element,{scale:2});
-  const imgData=canvas.toDataURL("image/png");
   const pdf=new jsPDF("p","mm","a4");
   const pdfWidth=pdf.internal.pageSize.getWidth();
-  const pdfHeight=(canvas.height*pdfWidth)/canvas.width;
-  pdf.addImage(imgData,"PNG",0,0,pdfWidth,pdfHeight);
+  const marginTop=25; // plass til header
+  const now=new Date().toLocaleString("no-NO");
+  let page=1;
+
+  function addHeader(){
+    pdf.setFontSize(12);
+    pdf.text("⭐ Tiltak avtalt med Nav ⭐", pdfWidth/2, 10, {align:"center"});
+    pdf.setFontSize(9);
+    pdf.text(`Utviklet av Settar Al-Jabri – Generert: ${now}`, pdfWidth/2, 16, {align:"center"});
+    pdf.text(`Side ${page}`, pdfWidth-20, 16, {align:"right"});
+    page++;
+  }
+
+  // Side 1: dashboard
+  const element1=document.querySelector(".dashboard");
+  const canvas1=await html2canvas(element1,{scale:2});
+  const img1=canvas1.toDataURL("image/png");
+  let pdfHeight=(canvas1.height*pdfWidth)/canvas1.width;
+  addHeader();
+  pdf.addImage(img1,"PNG",0,marginTop,pdfWidth,pdfHeight);
+
+  // Tabell på side 2
+  const element2=document.querySelector("table");
+  const canvas2=await html2canvas(element2,{scale:2});
+  const img2=canvas2.toDataURL("image/png");
+  pdfHeight=(canvas2.height*pdfWidth)/canvas2.width;
+  pdf.addPage();
+  addHeader();
+  pdf.addImage(img2,"PNG",0,marginTop,pdfWidth,pdfHeight);
+
+  // Under 30 graf på side 3
+  const chartU=document.getElementById("chartUnder30");
+  const canvasU=await html2canvas(chartU,{scale:2});
+  const imgU=canvasU.toDataURL("image/png");
+  pdfHeight=(canvasU.height*pdfWidth)/canvasU.width;
+  pdf.addPage();
+  addHeader();
+  pdf.addImage(imgU,"PNG",0,marginTop,pdfWidth,pdfHeight);
+
+  // Over 30 graf på side 4
+  const chartO=document.getElementById("chartOver30");
+  const canvasO=await html2canvas(chartO,{scale:2});
+  const imgO=canvasO.toDataURL("image/png");
+  pdfHeight=(canvasO.height*pdfWidth)/canvasO.width;
+  pdf.addPage();
+  addHeader();
+  pdf.addImage(imgO,"PNG",0,marginTop,pdfWidth,pdfHeight);
+
   pdf.save("tiltak.pdf");
 }
 
