@@ -2,74 +2,269 @@
 <html lang="no">
 <head>
   <meta charset="utf-8" />
-  <title>Tiltak avtalt med Nav</title>
+  <title>Tiltak avtalt med Nav - Forbedret visuell</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; margin:20px; background:#f4f6f9; color:#222; }
+    /* Reset and base */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #eaf2f7;
+      margin: 0; padding: 20px;
+      color: #2c3e50;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    h1, h3 {
+      font-weight: 700;
+      color: #14532d;
+      margin-bottom: 8px;
+    }
+    h3 { font-size: 1.4rem; }
+    
     header {
       background: linear-gradient(90deg, #14532d, #228B22, #b8860b);
-      color: #fff; padding: 30px; text-align: center; font-size: 32px; font-weight: 900;
-      border-radius: 14px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      padding: 25px 10px;
+      border-radius: 15px;
+      text-align: center;
+      color: white;
+      font-size: 2.25rem;
+      font-weight: 900;
+      box-shadow: 0 6px 15px rgba(20,83,45,0.6);
+      user-select: none;
     }
-    header span { display:block; font-size:18px; margin-top:10px; font-weight:600; }
-
-    .dashboard { display:flex; gap:40px; justify-content:center; margin-bottom:40px; }
+    header span {
+      margin-top: 8px;
+      display: block;
+      font-weight: 600;
+      font-size: 1rem;
+      opacity: 0.85;
+    }
+    
+    /* Dashboard cards */
+    .dashboard {
+      display: flex;
+      gap: 30px;
+      max-width: 900px;
+      margin: 30px auto;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
     .card {
-      flex:1; background:#fff; border-radius:12px; padding:20px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.1); text-align:center;
+      background: white;
+      border-radius: 14px;
+      padding: 30px 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      flex: 1 1 380px;
+      text-align: center;
+      transition: transform 0.3s ease;
+      cursor: default;
     }
-    .card h3 { margin:0; font-size:22px; }
-    .card .number { font-size:40px; font-weight:bold; margin:10px 0; }
-    .card.green { border-top:6px solid #4caf50; }
-    .card.yellow { border-top:6px solid #ffc107; }
-    .card .date { font-size:13px; color:#777; }
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.15);
+    }
+    .card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .card .number {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #14532d;
+      margin-bottom: 10px;
+      letter-spacing: -0.03em;
+    }
+    .card.green {
+      border-left: 8px solid #4caf50;
+    }
+    .card.yellow {
+      border-left: 8px solid #f1c40f;
+      color: #7a6f00;
+    }
+    .card .date {
+      font-size: 0.9rem;
+      color: #777;
+      font-style: italic;
+    }
 
-    table { width:100%; border-collapse:collapse; margin-bottom:20px; background:#fff;
-      box-shadow:0 2px 6px rgba(0,0,0,0.1); border-radius:10px; overflow:hidden; }
-    th, td { padding:10px; text-align:center; border-bottom:1px solid #eee; }
-    th { background:#228B22; color:white; }
-    input { width:70px; padding:4px; text-align:center; }
+    /* Input section */
+    .input-section {
+      max-width: 900px;
+      margin: 0 auto 40px;
+      background: white;
+      border-radius: 14px;
+      padding: 25px 30px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.07);
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    .input-section label {
+      display: flex;
+      flex-direction: column;
+      font-weight: 600;
+      color: #14532d;
+      flex-basis: 200px;
+    }
+    .input-section input {
+      margin-top: 8px;
+      padding: 8px 12px;
+      font-size: 1rem;
+      border-radius: 7px;
+      border: 2px solid #ccc;
+      transition: border-color 0.3s ease;
+      text-align: center;
+    }
+    .input-section input:focus {
+      outline: none;
+      border-color: #4caf50;
+      box-shadow: 0 0 6px rgba(76,175,80,0.5);
+    }
 
-    #charts { display:flex; flex-direction:column; gap:50px; }
-    canvas { background:#fff; padding:30px; border-radius:12px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+    /* Table styling */
+    table {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 40px;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+      font-size: 1rem;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.06);
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+    }
+    thead tr {
+      background: #228B22;
+      color: white;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    th, td {
+      padding: 14px 12px;
+      text-align: center;
+    }
+    tbody tr {
+      background: #fdfdfd;
+      border-radius: 14px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.04);
+      transition: background-color 0.3s ease;
+    }
+    tbody tr:hover {
+      background: #e1f7d5;
+    }
+    tbody td input[type=number] {
+      width: 70px;
+      font-weight: 600;
+      padding: 6px 8px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      transition: border-color 0.3s ease;
+      text-align: center;
+      font-size: 1rem;
+    }
+    tbody td input[type=number]:focus {
+      border-color: #4caf50;
+      outline: none;
+      box-shadow: 0 0 6px rgba(76,175,80,0.5);
+    }
 
+    /* Charts container */
+    #charts {
+      max-width: 900px;
+      margin: 0 auto 50px;
+      display: grid;
+      gap: 50px;
+      grid-template-columns: 1fr;
+    }
+    canvas {
+      border-radius: 14px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      background: white;
+      padding: 25px;
+      max-width: 100%;
+      height: auto !important;
+    }
+
+    /* Export button */
     .export-btn {
-      padding:12px 20px; background:#14532d; color:#fff; border:none; border-radius:6px;
-      cursor:pointer; margin:20px auto; display:block; font-size:16px; font-weight:600;
+      background: linear-gradient(90deg, #14532d, #228B22, #b8860b);
+      color: white;
+      border: none;
+      padding: 14px 30px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: 14px;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto 40px;
+      box-shadow: 0 8px 20px rgba(20,83,45,0.6);
+      transition: background 0.4s ease;
+      user-select: none;
     }
-    footer { margin-top:18px; font-size:13px; color:#666; text-align:center; }
+    .export-btn:hover {
+      background: linear-gradient(90deg, #105724, #1b6621, #a67805);
+      box-shadow: 0 10px 28px rgba(16,87,36,0.9);
+    }
+    
+    /* Footer styling */
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+
+    /* Responsive adjustments */
+    @media (min-width: 700px) {
+      #charts {
+        grid-template-columns: 1fr 1fr;
+      }
+      .export-btn {
+        width: 300px;
+      }
+    }
+
   </style>
 </head>
 <body>
 
-<header>⭐ Tiltak avtalt med Nav ⭐<br>
-<span>✅ Utviklet av Settar Al-Jabri ✅</span></header>
+<header>
+  ⭐ Tiltak avtalt med Nav ⭐
+  <span>✅ Utviklet av Settar Al-Jabri ✅</span>
+</header>
 
 <div class="dashboard">
   <div class="card green">
-    <h3>Totalt registrert <br>Under 30 år</h3>
+    <h3>Totalt registrert<br>Under 30 år</h3>
     <div class="number" id="dashUnder30">0</div>
     <div class="date" id="dateU30"></div>
   </div>
   <div class="card yellow">
-    <h3>Totalt registrert <br>Over 30 år</h3>
+    <h3>Totalt registrert<br>Over 30 år</h3>
     <div class="number" id="dashOver30">0</div>
     <div class="date" id="dateO30"></div>
   </div>
 </div>
 
-<h3>Registrer antall per tiltak</h3>
-<label>Totalt under 30 år:
-  <input type="number" id="totalUnder30" value="0" onchange="renderTable()">
-</label>
-<br><br>
-<label>Totalt over 30 år:
-  <input type="number" id="totalOver30" value="0" onchange="renderTable()">
-</label>
+<div class="input-section">
+  <label>Totalt under 30 år:
+    <input type="number" id="totalUnder30" value="0" min="0" onchange="renderTable()" />
+  </label>
+  <label>Totalt over 30 år:
+    <input type="number" id="totalOver30" value="0" min="0" onchange="renderTable()" />
+  </label>
+</div>
 
 <table>
   <thead>
@@ -83,8 +278,8 @@
 </table>
 
 <div id="charts">
-  <canvas id="chartUnder30" width="1200" height="600"></canvas>
-  <canvas id="chartOver30" width="1200" height="600"></canvas>
+  <canvas id="chartUnder30" width="400" height="300"></canvas>
+  <canvas id="chartOver30" width="400" height="300"></canvas>
 </div>
 
 <button class="export-btn" onclick="exportPDF()">📄 Last ned PDF</button>
@@ -92,156 +287,157 @@
 <footer>Utviklet av Settar Al-Jabri</footer>
 
 <script>
-const tiltak = [
-  "Arbeid med støtte",
-  "Arbeidsforberedende trening (AFT)",
-  "Arbeidsrettet rehabilitering (dag)",
-  "Arbeidstrening",
-  "Avklaring",
-  "Enkeltplass AMO",
-  "Enkeltplass Fag- og yrkesopplæring VGS og høyere yrkesfaglig utdanning",
-  "Forsøk AMO enkeltplass",
-  "Gruppe AMO",
-  "Høyere utdanning",
-  "Midlertidig lønnstilskudd",
-  "Oppfølging",
-  "Varig lønnstilskudd",
-  "Varig tilrettelagt arbeid i ordinær virksomhet",
-  "Varig tilrettelagt arbeid i skjermet virksomhet"
-];
+  const tiltak = [
+    "Arbeid med støtte",
+    "Arbeidsforberedende trening (AFT)",
+    "Arbeidsrettet rehabilitering (dag)",
+    "Arbeidstrening",
+    "Avklaring",
+    "Enkeltplass AMO",
+    "Enkeltplass Fag- og yrkesopplæring VGS og høyere yrkesfaglig utdanning",
+    "Forsøk AMO enkeltplass",
+    "Gruppe AMO",
+    "Høyere utdanning",
+    "Midlertidig lønnstilskudd",
+    "Oppfølging",
+    "Varig lønnstilskudd",
+    "Varig tilrettelagt arbeid i ordinær virksomhet",
+    "Varig tilrettelagt arbeid i skjermet virksomhet"
+  ];
 
-let data = {};
-tiltak.forEach(t => data[t] = {under30:0, over30:0});
+  let data = {};
+  tiltak.forEach(t => data[t] = { under30: 0, over30: 0 });
 
-// Farger
-const colors = [
-  "#4caf50","#2196f3","#ff9800","#9c27b0","#f44336","#3f51b5","#009688",
-  "#cddc39","#ff5722","#795548","#673ab7","#8bc34a","#607d8b","#e91e63","#ffc107"
-];
+  const colors = [
+    "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336", "#3f51b5", "#009688",
+    "#cddc39", "#ff5722", "#795548", "#673ab7", "#8bc34a", "#607d8b", "#e91e63", "#ffc107"
+  ];
 
-function renderTable(){
-  const tbody=document.getElementById("tiltakTable");
-  tbody.innerHTML="";
-  tiltak.forEach((t,i)=>{
-    const row=document.createElement("tr");
-    row.innerHTML=`
-      <td>${t}</td>
-      <td><input type="number" min="0" value="${data[t].under30}" onchange="updateData('${t}','under30',this.value)"></td>
-      <td><input type="number" min="0" value="${data[t].over30}" onchange="updateData('${t}','over30',this.value)"></td>
-    `;
-    tbody.appendChild(row);
-  });
-  updateCharts();
-}
-
-function updateData(t,f,val){
-  data[t][f]=parseInt(val)||0;
-  updateCharts();
-}
-
-function updateCharts(){
-  const totalU=parseInt(document.getElementById("totalUnder30").value)||0;
-  const totalO=parseInt(document.getElementById("totalOver30").value)||0;
-
-  let usedU=0, usedO=0;
-  const labels=[...tiltak];
-  const under30=[], over30=[];
-
-  tiltak.forEach((t,i)=>{
-    under30.push(data[t].under30);
-    over30.push(data[t].over30);
-    usedU+=data[t].under30;
-    usedO+=data[t].over30;
-  });
-
-  // Oppdater dashboard
-  document.getElementById("dashUnder30").innerText = totalU;
-  document.getElementById("dashOver30").innerText = totalO;
-  const now=new Date().toLocaleString("no-NO");
-  document.getElementById("dateU30").innerText = "Oppdatert: " + now;
-  document.getElementById("dateO30").innerText = "Oppdatert: " + now;
-
-  // Grafer (kun tiltak)
-  if(window.chartU) window.chartU.destroy();
-  if(window.chartO) window.chartO.destroy();
-
-  window.chartU=new Chart(document.getElementById("chartUnder30").getContext("2d"),{
-    type:'bar',
-    data:{labels:labels,datasets:[{label:"Under 30 år",data:under30,backgroundColor:colors}]},
-    options:{
-      responsive:false,
-      plugins:{legend:{display:false}},
-      scales:{y:{beginAtZero:true, suggestedMax:50, ticks:{stepSize:5}}}
-    }
-  });
-
-  window.chartO=new Chart(document.getElementById("chartOver30").getContext("2d"),{
-    type:'bar',
-    data:{labels:labels,datasets:[{label:"Over 30 år",data:over30,backgroundColor:colors}]},
-    options:{
-      responsive:false,
-      plugins:{legend:{display:false}},
-      scales:{y:{beginAtZero:true, suggestedMax:50, ticks:{stepSize:5}}}
-    }
-  });
-}
-
-async function exportPDF(){
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF("p","mm","a4");
-  const pdfWidth=pdf.internal.pageSize.getWidth();
-  const marginTop=25; // plass til header
-  const now=new Date().toLocaleString("no-NO");
-  let page=1;
-
-  function addHeader(){
-    pdf.setFontSize(12);
-    pdf.text("⭐ Tiltak avtalt med Nav ⭐", pdfWidth/2, 10, {align:"center"});
-    pdf.setFontSize(9);
-    pdf.text(`Utviklet av Settar Al-Jabri – Generert: ${now}`, pdfWidth/2, 16, {align:"center"});
-    pdf.text(`Side ${page}`, pdfWidth-20, 16, {align:"right"});
-    page++;
+  function renderTable() {
+    const tbody = document.getElementById("tiltakTable");
+    tbody.innerHTML = "";
+    tiltak.forEach((t, i) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${t}</td>
+        <td><input type="number" min="0" value="${data[t].under30}" onchange="updateData('${t}', 'under30', this.value)"></td>
+        <td><input type="number" min="0" value="${data[t].over30}" onchange="updateData('${t}', 'over30', this.value)"></td>
+      `;
+      tbody.appendChild(row);
+    });
+    updateCharts();
   }
 
-  // Side 1: dashboard
-  const element1=document.querySelector(".dashboard");
-  const canvas1=await html2canvas(element1,{scale:2});
-  const img1=canvas1.toDataURL("image/png");
-  let pdfHeight=(canvas1.height*pdfWidth)/canvas1.width;
-  addHeader();
-  pdf.addImage(img1,"PNG",0,marginTop,pdfWidth,pdfHeight);
+  function updateData(t, f, val) {
+    data[t][f] = parseInt(val) || 0;
+    updateCharts();
+  }
 
-  // Tabell på side 2
-  const element2=document.querySelector("table");
-  const canvas2=await html2canvas(element2,{scale:2});
-  const img2=canvas2.toDataURL("image/png");
-  pdfHeight=(canvas2.height*pdfWidth)/canvas2.width;
-  pdf.addPage();
-  addHeader();
-  pdf.addImage(img2,"PNG",0,marginTop,pdfWidth,pdfHeight);
+  function updateCharts() {
+    const totalU = parseInt(document.getElementById("totalUnder30").value) || 0;
+    const totalO = parseInt(document.getElementById("totalOver30").value) || 0;
 
-  // Under 30 graf på side 3
-  const chartU=document.getElementById("chartUnder30");
-  const canvasU=await html2canvas(chartU,{scale:2});
-  const imgU=canvasU.toDataURL("image/png");
-  pdfHeight=(canvasU.height*pdfWidth)/canvasU.width;
-  pdf.addPage();
-  addHeader();
-  pdf.addImage(imgU,"PNG",0,marginTop,pdfWidth,pdfHeight);
+    let usedU = 0, usedO = 0;
+    const labels = [...tiltak];
+    const under30 = [], over30 = [];
 
-  // Over 30 graf på side 4
-  const chartO=document.getElementById("chartOver30");
-  const canvasO=await html2canvas(chartO,{scale:2});
-  const imgO=canvasO.toDataURL("image/png");
-  pdfHeight=(canvasO.height*pdfWidth)/canvasO.width;
-  pdf.addPage();
-  addHeader();
-  pdf.addImage(imgO,"PNG",0,marginTop,pdfWidth,pdfHeight);
+    tiltak.forEach(t => {
+      under30.push(data[t].under30);
+      over30.push(data[t].over30);
+      usedU += data[t].under30;
+      usedO += data[t].over30;
+    });
 
-  pdf.save("tiltak.pdf");
-}
+    // Oppdater dashboard
+    document.getElementById("dashUnder30").innerText = totalU.toLocaleString();
+    document.getElementById("dashOver30").innerText = totalO.toLocaleString();
+    const now = new Date().toLocaleString("no-NO");
+    document.getElementById("dateU30").innerText = "Oppdatert: " + now;
+    document.getElementById("dateO30").innerText = "Oppdatert: " + now;
 
-renderTable();
+    // Oppdater grafer (bare tiltak)
+    if (window.chartU) window.chartU.destroy();
+    if (window.chartO) window.chartO.destroy();
+
+    window.chartU = new Chart(document.getElementById("chartUnder30").getContext("2d"), {
+      type: 'bar',
+      data: { labels: labels, datasets: [{ label: "Under 30 år", data: under30, backgroundColor: colors }] },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, suggestedMax: Math.max(...under30, 50), ticks: { stepSize: 5 } } }
+      }
+    });
+
+    window.chartO = new Chart(document.getElementById("chartOver30").getContext("2d"), {
+      type: 'bar',
+      data: { labels: labels, datasets: [{ label: "Over 30 år", data: over30, backgroundColor: colors }] },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, suggestedMax: Math.max(...over30, 50), ticks: { stepSize: 5 } } }
+      }
+    });
+  }
+
+  async function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const marginTop = 25;
+    const now = new Date().toLocaleString("no-NO");
+    let page = 1;
+
+    function addHeader() {
+      pdf.setFontSize(12);
+      pdf.text("⭐ Tiltak avtalt med Nav ⭐", pdfWidth / 2, 10, { align: "center" });
+      pdf.setFontSize(9);
+      pdf.text(`Utviklet av Settar Al-Jabri – Generert: ${now}`, pdfWidth / 2, 16, { align: "center" });
+      pdf.text(`Side ${page}`, pdfWidth - 20, 16, { align: "right" });
+      page++;
+    }
+
+    // Side 1: dashboard
+    const element1 = document.querySelector(".dashboard");
+    const canvas1 = await html2canvas(element1, { scale: 2 });
+    const img1 = canvas1.toDataURL("image/png");
+    let pdfHeight = (canvas1.height * pdfWidth) / canvas1.width;
+    addHeader();
+    pdf.addImage(img1, "PNG", 0, marginTop, pdfWidth, pdfHeight);
+
+    // Tabell på side 2
+    const element2 = document.querySelector("table");
+    const canvas2 = await html2canvas(element2, { scale: 2 });
+    const img2 = canvas2.toDataURL("image/png");
+    pdf.addPage();
+    addHeader();
+    pdfHeight = (canvas2.height * pdfWidth) / canvas2.width;
+    pdf.addImage(img2, "PNG", 0, marginTop, pdfWidth, pdfHeight);
+
+    // Under 30 graf på side 3
+    const chartU = document.getElementById("chartUnder30");
+    const canvasU = await html2canvas(chartU, { scale: 2 });
+    const imgU = canvasU.toDataURL("image/png");
+    pdf.addPage();
+    addHeader();
+    pdfHeight = (canvasU.height * pdfWidth) / canvasU.width;
+    pdf.addImage(imgU, "PNG", 0, marginTop, pdfWidth, pdfHeight);
+
+    // Over 30 graf på side 4
+    const chartO = document.getElementById("chartOver30");
+    const canvasO = await html2canvas(chartO, { scale: 2 });
+    const imgO = canvasO.toDataURL("image/png");
+    pdf.addPage();
+    addHeader();
+    pdfHeight = (canvasO.height * pdfWidth) / canvasO.width;
+    pdf.addImage(imgO, "PNG", 0, marginTop, pdfWidth, pdfHeight);
+
+    pdf.save("tiltak.pdf");
+  }
+
+  // Init table & charts
+  renderTable();
 </script>
+
 </body>
 </html>
