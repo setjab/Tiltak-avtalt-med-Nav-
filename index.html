@@ -162,6 +162,15 @@
     tbody tr:hover {
       background: #e1f7d5;
     }
+    tbody tr.total-row {
+      background: #228B22;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    tbody tr.total-row:hover {
+      background: #1a6b1a;
+    }
     tbody td input[type=number] {
       width: 70px;
       font-weight: 600;
@@ -290,7 +299,6 @@
   const tiltak = [
     "Arbeid med støtte",
     "Arbeidsforberedende trening (AFT)",
-    "Arbeidsrettet rehabilitering (dag)",
     "Arbeidstrening",
     "Avklaring",
     "Enkeltplass AMO",
@@ -298,11 +306,31 @@
     "Forsøk AMO enkeltplass",
     "Gruppe AMO",
     "Høyere utdanning",
+    "Mentor",
     "Midlertidig lønnstilskudd",
     "Oppfølging",
     "Varig lønnstilskudd",
     "Varig tilrettelagt arbeid i ordinær virksomhet",
     "Varig tilrettelagt arbeid i skjermet virksomhet"
+  ];
+
+  // Kortere navn for grafer
+  const tiltakKort = [
+    "Arbeid med støtte",
+    "AFT",
+    "Arbeidstrening",
+    "Avklaring",
+    "Enkeltplass AMO",
+    "Enkeltplass Fag/yrke VGS",
+    "Forsøk AMO",
+    "Gruppe AMO",
+    "Høyere utdanning",
+    "Mentor",
+    "Midl. lønnstilskudd",
+    "Oppfølging",
+    "Varig lønnstilskudd",
+    "Varig tilr. arb. ordinær",
+    "Varig tilr. arb. skjermet"
   ];
 
   let data = {};
@@ -316,6 +344,10 @@
   function renderTable() {
     const tbody = document.getElementById("tiltakTable");
     tbody.innerHTML = "";
+    
+    let totalU30 = 0;
+    let totalO30 = 0;
+    
     tiltak.forEach((t, i) => {
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -324,13 +356,27 @@
         <td><input type="number" min="0" value="${data[t].over30}" onchange="updateData('${t}', 'over30', this.value)"></td>
       `;
       tbody.appendChild(row);
+      
+      totalU30 += data[t].under30;
+      totalO30 += data[t].over30;
     });
+    
+    // Add total row
+    const totalRow = document.createElement("tr");
+    totalRow.className = "total-row";
+    totalRow.innerHTML = `
+      <td><strong>Total</strong></td>
+      <td><strong>${totalU30}</strong></td>
+      <td><strong>${totalO30}</strong></td>
+    `;
+    tbody.appendChild(totalRow);
+    
     updateCharts();
   }
 
   function updateData(t, f, val) {
     data[t][f] = parseInt(val) || 0;
-    updateCharts();
+    renderTable();
   }
 
   function updateCharts() {
@@ -338,7 +384,7 @@
     const totalO = parseInt(document.getElementById("totalOver30").value) || 0;
 
     let usedU = 0, usedO = 0;
-    const labels = [...tiltak];
+    const labels = [...tiltakKort]; // Bruker korte navn
     const under30 = [], over30 = [];
 
     tiltak.forEach(t => {
@@ -364,8 +410,26 @@
       data: { labels: labels, datasets: [{ label: "Under 30 år", data: under30, backgroundColor: colors }] },
       options: {
         responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, suggestedMax: Math.max(...under30, 50), ticks: { stepSize: 5 } } }
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: function(context) {
+                return tiltak[context[0].dataIndex];
+              }
+            }
+          }
+        },
+        scales: { 
+          y: { beginAtZero: true, suggestedMax: Math.max(...under30, 50), ticks: { stepSize: 5 } },
+          x: { 
+            ticks: { 
+              font: { size: 10 },
+              maxRotation: 45,
+              minRotation: 45
+            }
+          }
+        }
       }
     });
 
@@ -374,8 +438,26 @@
       data: { labels: labels, datasets: [{ label: "Over 30 år", data: over30, backgroundColor: colors }] },
       options: {
         responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, suggestedMax: Math.max(...over30, 50), ticks: { stepSize: 5 } } }
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: function(context) {
+                return tiltak[context[0].dataIndex];
+              }
+            }
+          }
+        },
+        scales: { 
+          y: { beginAtZero: true, suggestedMax: Math.max(...over30, 50), ticks: { stepSize: 5 } },
+          x: { 
+            ticks: { 
+              font: { size: 10 },
+              maxRotation: 45,
+              minRotation: 45
+            }
+          }
+        }
       }
     });
   }
