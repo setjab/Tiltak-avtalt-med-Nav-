@@ -195,13 +195,15 @@
       gap: 50px;
       grid-template-columns: 1fr;
     }
-    canvas {
-      border-radius: 14px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    .chart-wrapper {
       background: white;
       padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    canvas {
       max-width: 100%;
-      height: auto !important;
+      height: 500px !important;
     }
 
     /* Export button */
@@ -287,8 +289,12 @@
 </table>
 
 <div id="charts">
-  <canvas id="chartUnder30" width="400" height="300"></canvas>
-  <canvas id="chartOver30" width="400" height="300"></canvas>
+  <div class="chart-wrapper">
+    <canvas id="chartUnder30"></canvas>
+  </div>
+  <div class="chart-wrapper">
+    <canvas id="chartOver30"></canvas>
+  </div>
 </div>
 
 <button class="export-btn" onclick="exportPDF()">📄 Last ned PDF</button>
@@ -316,21 +322,21 @@
 
   // Kortere navn for grafer
   const tiltakKort = [
-    "Arbeid med støtte",
+    "Arbeid m/støtte",
     "AFT",
     "Arbeidstrening",
     "Avklaring",
-    "Enkeltplass AMO",
-    "Enkeltplass Fag/yrke VGS",
+    "Enkeltpl. AMO",
+    "Enkeltpl. Fag/VGS",
     "Forsøk AMO",
     "Gruppe AMO",
-    "Høyere utdanning",
+    "Høyere utd.",
     "Mentor",
-    "Midl. lønnstilskudd",
+    "Midl. lønnstil.",
     "Oppfølging",
-    "Varig lønnstilskudd",
-    "Varig tilr. arb. ordinær",
-    "Varig tilr. arb. skjermet"
+    "Varig lønnstil.",
+    "VTA ordinær",
+    "VTA skjermet"
   ];
 
   let data = {};
@@ -410,6 +416,7 @@
       data: { labels: labels, datasets: [{ label: "Under 30 år", data: under30, backgroundColor: colors }] },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: { 
           legend: { display: false },
           tooltip: {
@@ -421,12 +428,13 @@
           }
         },
         scales: { 
-          y: { beginAtZero: true, suggestedMax: Math.max(...under30, 50), ticks: { stepSize: 5 } },
+          y: { beginAtZero: true, suggestedMax: Math.max(...under30, 50), ticks: { stepSize: 5, font: { size: 12 } } },
           x: { 
             ticks: { 
-              font: { size: 10 },
-              maxRotation: 45,
-              minRotation: 45
+              font: { size: 11, weight: 'bold' },
+              maxRotation: 60,
+              minRotation: 60,
+              autoSkip: false
             }
           }
         }
@@ -438,23 +446,25 @@
       data: { labels: labels, datasets: [{ label: "Over 30 år", data: over30, backgroundColor: colors }] },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: { 
           legend: { display: false },
           tooltip: {
             callbacks: {
               title: function(context) {
-                return tiltak[context[0].dataIndex];
+                return tilak[context[0].dataIndex];
               }
             }
           }
         },
         scales: { 
-          y: { beginAtZero: true, suggestedMax: Math.max(...over30, 50), ticks: { stepSize: 5 } },
+          y: { beginAtZero: true, suggestedMax: Math.max(...over30, 50), ticks: { stepSize: 5, font: { size: 12 } } },
           x: { 
             ticks: { 
-              font: { size: 10 },
-              maxRotation: 45,
-              minRotation: 45
+              font: { size: 11, weight: 'bold' },
+              maxRotation: 60,
+              minRotation: 60,
+              autoSkip: false
             }
           }
         }
@@ -497,7 +507,7 @@
     pdf.addImage(img2, "PNG", 0, marginTop, pdfWidth, pdfHeight);
 
     // Under 30 graf på side 3
-    const chartU = document.getElementById("chartUnder30");
+    const chartU = document.querySelector("#chartUnder30").closest('.chart-wrapper');
     const canvasU = await html2canvas(chartU, { scale: 2 });
     const imgU = canvasU.toDataURL("image/png");
     pdf.addPage();
@@ -506,7 +516,7 @@
     pdf.addImage(imgU, "PNG", 0, marginTop, pdfWidth, pdfHeight);
 
     // Over 30 graf på side 4
-    const chartO = document.getElementById("chartOver30");
+    const chartO = document.querySelector("#chartOver30").closest('.chart-wrapper');
     const canvasO = await html2canvas(chartO, { scale: 2 });
     const imgO = canvasO.toDataURL("image/png");
     pdf.addPage();
